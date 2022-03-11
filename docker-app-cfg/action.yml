@@ -24,10 +24,10 @@ outputs:
     value: ${{ steps.process.outputs.docker_repository_location_only }}
   docker_image_tag:
     description: "The Docker image name for the current Git changeset."
-    value: ${{ steps.process.outputs.image_tag }}
+    value: ${{ steps.process.outputs.docker_image_tag }}
   app_folder:
     description: "The folder of the specified app."
-    value: ${{ steps.process.outputs.folder }}
+    value: ${{ steps.process.outputs.app_folder }}
 runs:
   using: "composite"
   steps:
@@ -53,5 +53,5 @@ runs:
         echo "::set-output name=docker_repository::$docker_repository"
         echo "::set-output name=docker_repository_location_only::$docker_repository_location_only"
         echo "::set-output name=docker_image::$docker_image"
-        echo "::set-output name=image_tag::$image_tag"
-        echo "::set-output name=folder::$folder"
+        echo "::set-output name=docker_image_tag::$docker_image_tag"
+        echo "::set-output name=app_folder::$app_folder"
