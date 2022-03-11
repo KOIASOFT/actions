@@ -47,9 +47,9 @@ runs:
           find
         fi
         
-        test -n "$APP"         || { echo "Variable '$APP' missing"; exit 1; }
-        test -n "$CONFIG_PATH" || { echo "Variable '$CONFIG_PATH' missing"; exit 2; }
-        test -n "$DEBUG"       || { echo "Variable '$DEBUG' missing"; exit 3; }
+        test -n "$APP"         || { echo "Variable 'app' missing"; exit 1; }
+        test -n "$CONFIG_PATH" || { echo "Variable 'config_path' missing"; exit 2; }
+        test -n "$DEBUG"       || { echo "Variable 'debug' missing"; exit 3; }
         test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 4; }
         
         alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
