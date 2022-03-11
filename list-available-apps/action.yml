@@ -14,10 +14,10 @@ inputs:
     required: true
     default: "false"
 outputs:
-  apps-comma-separated-list:
+  csl:
     description: "The comma-separated list of available apps."
     value: ${{ steps.get-app-lists.outputs.csl }}
-  apps-json-list:
+  json:
     description: "The list of available apps in JSON format."
     value: ${{ steps.get-app-lists.outputs.json }}
 runs:
@@ -33,11 +33,17 @@ runs:
       run: |
         set -e
         
+        pwd
+        
         if [ "$DEBUG" == "true" ]; then
           set -x
         fi
         
         alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
+        
+        ls -al ~/.infrastracture
+        
+        test [[ -f $CONFIG_PATH ]] || { echo "$CONFIG_PATH not found"; exit 1 } 
         
         apps_str=$(yq e '.apps | keys' $CONFIG_PATH)
         apps_list=$(sed 's/^- //' <<< "$apps_str" | sed -z 's/\n/,/g' | sed 's/,$//;s/ //g;s/#.*$//')
