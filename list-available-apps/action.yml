@@ -33,15 +33,13 @@ runs:
       run: |
         set -e
         
-        pwd
-        
         if [ "$DEBUG" == "true" ]; then
           set -x
+          pwd
+          find
         fi
         
         alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
-        
-        ls -al .infrastracture
         
         test [[ -f $CONFIG_PATH ]] || { echo "$CONFIG_PATH not found"; exit 1 } 
         
