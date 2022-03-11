@@ -41,7 +41,7 @@ runs:
         
         alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
         
-        ls -al ~/.infrastracture
+        ls -al .infrastracture
         
         test [[ -f $CONFIG_PATH ]] || { echo "$CONFIG_PATH not found"; exit 1 } 
         
