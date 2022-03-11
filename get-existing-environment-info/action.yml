@@ -1,0 +1,58 @@
+name: 'Get existing environment information'
+description: 'Reads existing information from configuration and presents it in output as is'
+inputs:
+  account:
+    description: 'The account to get information for.'
+    required: true
+  environment:
+    description: 'The environment to get information for.'
+    required: true
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  debug:
+    description: 'Defines whether enable debug.'
+    required: true
+    default: "false"
+outputs:
+  data:
+    description: 'A JSON object representing configuration parameters for environment.'
+    value: ${{ steps.process.outputs.data }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read configuration
+      id: process
+      shell: bash
+      env:
+        ACCOUNT: ${{ inputs.account }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        declare -A return
+        
+        . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh return
+        
+        data="{"
+        data="$data \"account\": \"$account\""
+        data="$data, \"environment\": \"environment\""
+        
+        for key in "${!return[@]}"
+        do
+          data="$data, \"$key\": \"${return[$key]}\""
+        done
+        
+        data="$data }"
+        
+        echo "::set-output name=data::$data"

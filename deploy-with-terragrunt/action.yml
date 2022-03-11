@@ -1,0 +1,125 @@
+name: 'Deploy with Terragrunt'
+description: 'Deploys application with Terragrunt'
+inputs:
+  app:
+    description: 'The name of the application to deploy.'
+    required: true
+  account:
+    description: 'The account to deploy the application in.'
+    required: true
+  environment:
+    description: 'The environment to deploy the application in.'
+    required: true
+  changeset:
+    description: 'The changeset / tag / version of application to deploy (should not matter while undeploying).'
+    required: true
+  repo_ssh_key:
+    description: 'The SSH key to access GitHub repositories.'
+    required: true
+  destroy:
+    description: 'Defines whether the deployment should be destroyed.'
+    required: true
+    default: "false"
+  retries:
+    description: 'Defines how many time should Terragrunt be attempted.'
+    required: true
+    default: "5"
+  debug:
+    description: 'Prints debug trace.'
+    required: true
+    default: "false"
+  terraform_version:
+    description: 'The version of Terraform to use.'
+    required: true
+    default: 1.1.0
+  terragrunt_version:
+    description: 'The version of Terragrunt to use.'
+    required: true
+    default: 0.35.16
+  terragrunt_workdir:
+    description: 'The directory with Terragrunt configuration.'
+    required: true
+    default: .infrastructure/terragrunt
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup SSH Keys and known_hosts
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ inputs.repo_ssh_key }}"
+
+    - name: Configure environment variables
+      shell: bash
+      run: |
+        if [ "${{ inputs.destroy }}" == "true" ]; then
+          echo "__TF_DESTROY=-destroy" >> $GITHUB_ENV
+        fi
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+        terraform_wrapper: false
+
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v1.1.0
+      with:
+        terragrunt_version: ${{ inputs.terragrunt_version }}
+
+    - name: Terragrunt Init
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: terragrunt init
+
+    - name: Terragrunt Validate
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: terragrunt validate
+
+    - name: Terragrunt Apply
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: |
+        set +e
+        
+        for ((no=1; no <= ${{ inputs.retries }}; no++))
+        do
+          echo "===== Attempt: $no ====="
+          terragrunt plan $__TF_DESTROY -out terraform-plan.out
+          terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out
+        
+          if [ $? -eq 0 ]; then
+            exit 0
+          fi
+        done
+        
+        set -e
+        
+        echo "===== Failure =====" 
+        exit 1

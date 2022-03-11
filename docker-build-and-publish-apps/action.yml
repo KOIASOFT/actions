@@ -1,5 +1,5 @@
-name: 'List available apps'
-description: 'List available apps from the specified config file'
+name: 'Docker build and push apps'
+description: 'Prepare Docker images and publish them for each app. Assumes that application is built and Dockerfiles manage the process of preparation of the image'
 inputs:
   config_file_path:
     description: 'The path to the configuration file.'
@@ -13,18 +13,11 @@ inputs:
     description: 'Prints debug trace'
     required: true
     default: "false"
-outputs:
-  csl:
-    description: "The comma-separated list of available apps."
-    value: ${{ steps.get-app-lists.outputs.csl }}
-  json:
-    description: "The list of available apps in JSON format."
-    value: ${{ steps.get-app-lists.outputs.json }}
 runs:
   using: "composite"
   steps:
-    - name: Read list of available apps
-      id: get-app-lists
+    - name: Process
+      id: process
       shell: bash
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
@@ -39,7 +32,5 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/list-available-apps.sh
+        . ${{ github.action_path }}/../.scripts/docker-build-and-publish-apps.sh
         
-        echo "::set-output name=csl::$apps_csl"
-        echo "::set-output name=json::$apps_json"

@@ -1,5 +1,5 @@
-name: 'List available apps'
-description: 'List available apps from the specified config file'
+name: 'Check Docker image exists in the chosen account'
+description: 'Checks whether images exists in the account (creates repository if needed)'
 inputs:
   config_file_path:
     description: 'The path to the configuration file.'
@@ -13,23 +13,24 @@ inputs:
     description: 'Prints debug trace'
     required: true
     default: "false"
-outputs:
-  csl:
-    description: "The comma-separated list of available apps."
-    value: ${{ steps.get-app-lists.outputs.csl }}
-  json:
-    description: "The list of available apps in JSON format."
-    value: ${{ steps.get-app-lists.outputs.json }}
+  account:
+    description: 'The account to check in.'
+    required: true
+  tag:
+    description: 'The tag to check for.'
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Read list of available apps
-      id: get-app-lists
+    - name: Check Docker image exists
+      id: process
       shell: bash
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
         DEBUG: ${{ inputs.debug }}
+        ACCOUNT: ${{ inputs.account }}
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
         
@@ -39,7 +40,7 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/list-available-apps.sh
+        . ${{ github.action_path }}/../.scripts/check-docker-image-exists.sh
         
-        echo "::set-output name=csl::$apps_csl"
-        echo "::set-output name=json::$apps_json"
+        echo "::set-output name=exists::$exists" 
+        

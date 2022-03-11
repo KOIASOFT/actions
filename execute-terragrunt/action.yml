@@ -1,0 +1,119 @@
+name: 'Execute Terragrunt'
+description: 'Executes Terragrunt within specified folder'
+inputs:
+  inputs:
+    description: 'The input variables to configure for all Terragrunt steps (each becomes environment variable with TF_VAR_ prefix to its name).'
+    required: false
+    default: ""
+  env:
+    description: 'The environment variable to configure for all steps.'
+    required: false
+    default: ""
+  destroy:
+    description: 'Specify whether this should be destroy action instead of apply'
+    required: false
+    default: "false"
+  repo_ssh_key:
+    description: 'The SSH key to access GitHub repositories.'
+    required: true
+  debug:
+    description: 'Prints debug trace.'
+    required: true
+    default: "false"
+  terraform_version:
+    description: 'The version of Terraform to use.'
+    required: true
+    default: 1.1.0
+  terragrunt_version:
+    description: 'The version of Terragrunt to use.'
+    required: true
+    default: 0.35.16
+  terragrunt_workdir:
+    description: 'The directory with Terragrunt configuration.'
+    required: true
+    default: .infrastructure/terragrunt
+  install_terragrunt:
+    description: 'Defines whether to install Terraform and Terragrunt.'
+    required: true
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup SSH Keys and known_hosts
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ inputs.repo_ssh_key }}"
+
+    - name: Configure environment variables
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          echo "TF_LOG=\"debug\"" >> $GITHUB_ENV
+        fi
+        
+        if [ "${{ inputs.destroy }}" == "true" ]; then
+          echo "__TF_DESTROY=\"-destroy\"" >> $GITHUB_ENV
+        fi
+        
+        
+        . ${{ github.action_path }}/../.scripts/load-environment-variables.sh "$GITHUB_ENV" "${{ inputs.env }}" ""
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      if: inputs.install_terragrunt == "true"
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+        terraform_wrapper: false
+
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v1.1.0
+      if: inputs.install_terragrunt == "true"
+      with:
+        terragrunt_version: ${{ inputs.terragrunt_version }}
+
+    - name: Configure inputs
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/load-environment-variables.sh "$GITHUB_ENV" "${{ inputs.ipnuts }}" "TF_VAR_"
+
+    - name: Terragrunt Init
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+      run: terragrunt init
+
+    - name: Terragrunt Validate
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+      run: terragrunt validate
+
+    - name: Terragrunt Plan
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+      run: terragrunt plan "$__TF_DESTROY" -out terraform-plan.out
+
+    - name: Terragrunt Apply
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+      run: terragrunt apply "$__TF_DESTROY" --auto-approve terraform-plan.out

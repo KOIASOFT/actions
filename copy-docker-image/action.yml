@@ -1,5 +1,5 @@
-name: 'List available apps'
-description: 'List available apps from the specified config file'
+name: 'Copy Docker image'
+description: 'Copies Docker registry between registries if missing'
 inputs:
   config_file_path:
     description: 'The path to the configuration file.'
@@ -13,23 +13,28 @@ inputs:
     description: 'Prints debug trace'
     required: true
     default: "false"
-outputs:
-  csl:
-    description: "The comma-separated list of available apps."
-    value: ${{ steps.get-app-lists.outputs.csl }}
-  json:
-    description: "The list of available apps in JSON format."
-    value: ${{ steps.get-app-lists.outputs.json }}
+  app:
+    description: 'The app to copy imaeg for.'
+    required: true
+  account:
+    description: 'The account to check in.'
+    required: true
+  tag:
+    description: 'The tag to check for.'
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: Read list of available apps
-      id: get-app-lists
+    - name: Copy Docker image
+      id: image_check
       shell: bash
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
-        DEBUG: ${{ inputs.debug }}
+        DEBUG: ${{ inputs.debug }}`
+        APP: ${{ inputs.app }}
+        ACCOUNT: ${{ inputs.account }}
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
         
@@ -39,7 +44,4 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/list-available-apps.sh
-        
-        echo "::set-output name=csl::$apps_csl"
-        echo "::set-output name=json::$apps_json"
+        . ${{ github.action_path }}/../.scripts/copy-docker-image.sh
