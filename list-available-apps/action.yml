@@ -27,9 +27,9 @@ runs:
       id: get-app-lists
       shell: bash
       env:
-        CONFIG_PATH: ${{ github.event.inputs.config_file_path }}
-        EXCLUDED_APPS: ${{ github.event.inputs.exclude_apps }}
-        DEBUG: ${{ github.event.inputs.debug }}
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
       run: |
         set -e
         
