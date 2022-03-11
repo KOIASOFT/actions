@@ -39,34 +39,7 @@ runs:
           find
         fi
         
-        alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
-        
-        test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' not found"; exit 1; } 
-        
-        apps_str=$(yq e '.apps | keys' $CONFIG_PATH)
-        apps_list=$(sed 's/^- //' <<< "$apps_str" | sed -z 's/\n/,/g' | sed 's/,$//;s/ //g;s/#.*$//')
-        
-        IFS=',' read -r -a apps_array <<< "$apps_list"
-        IFS=',' read -r -a excluded_array <<< "$EXCLUDED_APPS"
-        
-        apps=()
-
-        for app in "${apps_array[@]}"; do
-              for excluded in "${excluded_array[@]}"; do
-                  KEEP=true
-                  if [[ "$app" == "$excluded" ]]; then
-                      KEEP=false
-                      break
-                  fi
-              done
-        
-              if ${KEEP}; then
-                apps+=($app)
-              fi
-        done
-        
-        apps_csl=$(sed -z "s/ /,/g" <<< "${apps[@]}")
-        apps_json=$(sed -z 's/\n/"]/;s/,/","/g;s/^/["/' <<< "$apps_csl")
+        . ${{ github.action_path }}/../.scripts/list-available-apps.sh
         
         echo "::set-output name=csl::$apps_csl"
         echo "::set-output name=json::$apps_json"

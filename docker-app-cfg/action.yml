@@ -47,22 +47,7 @@ runs:
           find
         fi
         
-        test -n "$APP"         || { echo "Variable 'app' missing"; exit 1; }
-        test -n "$CONFIG_PATH" || { echo "Variable 'config_path' missing"; exit 2; }
-        test -n "$DEBUG"       || { echo "Variable 'debug' missing"; exit 3; }
-        test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 4; }
-        
-        alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
-      
-        repository_query=".apps.${APP}.docker_repository"
-        folder_query=".apps.${APP}.folder"
-        
-        image_tag=$(git rev-parse --short HEAD)
-        docker_registry=$(yq e '.apps.common.docker_registry' $CONFIG_PATH)
-        docker_repository_location_only=$(yq e "$repository_query" $CONFIG_PATH)
-        docker_repository="$docker_registry/$docker_repository_location_only"
-        docker_image="$docker_repository:$image_tag"
-        folder=$(yq e "$folder_query" $CONFIG_PATH)
+        . ${{ github.action_path }}/../.scripts/docker-app-cfg.sh
         
         echo "::set-output name=docker_registry::$docker_registry"
         echo "::set-output name=docker_repository::$docker_repository"
