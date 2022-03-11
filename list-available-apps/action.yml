@@ -1,0 +1,68 @@
+name: 'List available apps'
+description: 'List available apps from the specified config file'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+outputs:
+  apps-comma-separated-list:
+    description: "The comma-separated list of available apps."
+    value: ${{ steps.get-app-lists.outputs.csl }}
+  apps-json-list:
+    description: "The list of available apps in JSON format."
+    value: ${{ steps.get-app-lists.outputs.json }}
+runs:
+  using: "composite"
+  steps:
+    - name: Read list of available apps
+      id: get-app-lists
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ github.event.inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ github.event.inputs.exclude_apps }}
+        DEBUG: ${{ github.event.inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+        fi
+        
+        alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
+        
+        apps_str=$(yq e '.apps | keys' $CONFIG_PATH)
+        apps_list=$(sed 's/^- //' <<< "$apps_str" | sed -z 's/\n/,/g' | sed 's/,$//;s/ //g;s/#.*$//')
+        
+        IFS=',' read -r -a apps_array <<< "$apps_list"
+        IFS=',' read -r -a excluded_array <<< "$EXCLUDED_APPS"
+        
+        apps=()
+
+        for app in "${apps_array[@]}"; do
+              for excluded in "${excluded_array[@]}"; do
+                  KEEP=true
+                  if [[ "$app" == "$excluded" ]]; then
+                      KEEP=false
+                      break
+                  fi
+              done
+        
+              if ${KEEP}; then
+                apps+=($app)
+              fi
+        done
+        
+        apps_csl=$(sed -z "s/ /,/g" <<< "${apps[@]}")
+        apps_json=$(sed -z 's/\n/"]/;s/,/","/g;s/^/["/' <<< "$apps_csl")
+        
+        echo "::set-output name=csl::$apps_csl"
+        echo "::set-output name=json::$apps_json"
