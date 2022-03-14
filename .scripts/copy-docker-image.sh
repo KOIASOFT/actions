@@ -42,7 +42,3 @@ unset AWS_PROFILE
 ecr_login $destination_registry
 
 docker push $destination_image
-
-if [[ $exit_code != 0 ]]; then
-  exit 7
-fi

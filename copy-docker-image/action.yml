@@ -31,7 +31,7 @@ runs:
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
-        DEBUG: ${{ inputs.debug }}
+        DEBUG: ${{ inputs.debug }}`
         APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         TAG: ${{ inputs.tag }}
