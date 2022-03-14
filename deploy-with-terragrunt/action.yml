@@ -66,7 +66,7 @@ runs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
@@ -76,7 +76,7 @@ runs:
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
@@ -86,7 +86,7 @@ runs:
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
@@ -96,7 +96,7 @@ runs:
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
