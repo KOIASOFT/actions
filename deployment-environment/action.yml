@@ -26,6 +26,8 @@ runs:
           set -x
         fi
         
+        . ${{ github.action_path }}/../.scripts/deployment-environment.sh
+        
         echo "::set-output name=account::$account"
         echo "::set-output name=environment::$environment"      
 
