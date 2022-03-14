@@ -37,7 +37,7 @@ runs:
       id: process
       shell: bash
       env:
-        APPS_INPUT: ${{ inputs.apps }}
+        APPS: ${{ inputs.apps }}
         ACCOUNT: ${{ inputs.account }}
         ENVIORNMENT: ${{ inputs.environment }}
         CONFIG_PATH: ${{ inputs.config_file_path }}
