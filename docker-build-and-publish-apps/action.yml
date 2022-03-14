@@ -21,7 +21,7 @@ runs:
       shell: bash
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
-        EXCLUDE_APPS: ${{ inputs.exclude_apps }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
         DEBUG: ${{ inputs.debug }}
       run: |
         set -e
