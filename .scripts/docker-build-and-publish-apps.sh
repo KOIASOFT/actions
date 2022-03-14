@@ -15,6 +15,8 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 for app in "${apps[@]}"; do
   echo "Executing Docker build for '$app'"
 
+  APP="$app"
+
   . $(dirname -- "${BASH_SOURCE[0]}")/docker-app-cfg.sh
 
   echo " - docker_image: $docker_image"
