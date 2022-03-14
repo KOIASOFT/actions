@@ -32,5 +32,6 @@ for app in "${apps_array[@]}"; do
       fi
 done
 
-apps_csl=$(sed -z "s/ /,/g" <<< "${apps[@]}")
-apps_json=$(sed -z 's/\n/"]/;s/,/","/g;s/^/["/' <<< "$apps_csl")
+export apps
+export apps_csl=$(sed -z "s/ /,/g" <<< "${apps[@]}")
+export apps_json=$(sed -z 's/\n/"]/;s/,/","/g;s/^/["/' <<< "$apps_csl")

@@ -2,7 +2,7 @@ name: 'Docker build configuration'
 description: 'Prepare Docker build configuration for a specified app'
 inputs:
   app:
-    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    description: 'The name of the application to prepare Docker configuration for'
     required: true
   config_file_path:
     description: 'The path to the configuration file.'
@@ -25,6 +25,15 @@ outputs:
   docker_image_tag:
     description: "The Docker image name for the current Git changeset."
     value: ${{ steps.process.outputs.docker_image_tag }}
+  dockerfile:
+    description: "The Dockerfile for the app."
+    value: ${{ steps.process.outputs.dockerfile }}
+  dockerignore:
+    description: "The .dockerignore file for the app."
+    value: ${{ steps.process.outputs.dockerignore }}
+  docker_context:
+    description: "The Docker context path for the app."
+    value: ${{ steps.process.outputs.docker_context }}
   app_folder:
     description: "The folder of the specified app."
     value: ${{ steps.process.outputs.app_folder }}
@@ -54,4 +63,7 @@ runs:
         echo "::set-output name=docker_repository_location_only::$docker_repository_location_only"
         echo "::set-output name=docker_image::$docker_image"
         echo "::set-output name=docker_image_tag::$docker_image_tag"
+        echo "::set-output name=dockerfile::$dockerfile"
+        echo "::set-output name=dockerignore::$dockerignore"
+        echo "::set-output name=docker_context::$docker_context"
         echo "::set-output name=app_folder::$app_folder"
