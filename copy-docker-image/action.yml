@@ -22,7 +22,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Check Docker image exists
+    - name: Copy Docker image
       id: image_check
       shell: bash
       env:
@@ -40,12 +40,4 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/check-docker-image-exists.sh
-        
-        echo "::set-output name=exists::$exists"
-
-    - name: Pull Docker image from the source registry
-      if: ${{ steps.image_check.outputs.exists == 'false' }}
-      shell: bash
-      run: docker pull ${{ needs.Init.outputs.source_registry }}/${{ steps.repository.outputs.docker_repository }}:${{ needs.Init.outputs.changeset }}
-
+        . ${{ github.action_path }}/../.scripts/copy-docker-image.sh
