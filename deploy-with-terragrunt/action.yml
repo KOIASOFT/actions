@@ -4,6 +4,15 @@ inputs:
   app:
     description: 'The name of the application to deploy.'
     required: true
+  account:
+    description: 'The account to deploy the application in.'
+    required: true
+  environment:
+    description: 'The environment to deploy the application in.'
+    required: true
+  changeset:
+    description: 'The changeset / tag / version of application to deploy.'
+    required: true
   repo_ssh_key:
     description: 'The SSH key to access GitHub repositories.'
     required: true
@@ -22,7 +31,7 @@ inputs:
   terragrunt_workdir:
     description: 'The directory with Terragrunt configuration.'
     required: true
-    default:  .infrastructure/terragrunt
+    default: .infrastructure/terragrunt
 
 runs:
   using: "composite"
@@ -57,22 +66,38 @@ runs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.terragrunt_workdir }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt init
 
     - name: Terragrunt Validate
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.terragrunt_workdir }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt validate
 
     - name: Terragrunt Plan
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.terragrunt_workdir }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt plan -out terraform-plan.out
 
     - name: Terragrunt Apply
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+        APP: ${{ inputs.terragrunt_workdir }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.changeset }}
+        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt apply --auto-approve terraform-plan.out
