@@ -20,6 +20,10 @@ destination_registry=$(yq e ".accounts.${ACCOUNT}.common.docker_registry" $CONFI
 source_image="${source_registry}/${repository}:$TAG"
 destination_image="${destination_registry}/${repository}:$TAG"
 
+login=$(aws ecr get-login)
+
+$login
+
 docker pull $source_image
 SHA=$(docker inspect --format='{{.ID}}' $source_image | awk -F: '{print $2}')
 docker tag "$SHA" $destination_image
