@@ -32,7 +32,7 @@ runs:
       if: ${{ env.CHANGESET_UNCONFIGURED }}
       uses: octokit/request-action@v2.x
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         route: GET /repos/${{ github.repository }}/actions/workflows/${{ inputs.workflow_id }}/runs?status=success&per_page=1&branch=${{ github.ref_name }}
 
