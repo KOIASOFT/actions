@@ -14,6 +14,8 @@ script="-c ./$(basename $tmpfile)"
 out_file="stdout.log"
 err_file="stderr.log"
 
+docker pull "$IMAGE"
+
 workdir=$(docker inspect $IMAGE --format '{{ or .Config.WorkingDir "/root"}}')
 
 alias run="docker run --entrypoint=/bin/bash --rm -v $PWD:$workdir $IMAGE"
