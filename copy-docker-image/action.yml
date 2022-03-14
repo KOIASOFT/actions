@@ -13,6 +13,9 @@ inputs:
     description: 'Prints debug trace'
     required: true
     default: "false"
+  app:
+    description: 'The app to copy imaeg for.'
+    required: true
   account:
     description: 'The account to check in.'
     required: true
