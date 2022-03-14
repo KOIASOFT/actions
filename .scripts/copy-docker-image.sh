@@ -13,6 +13,11 @@ test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 6;
 
 alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
+
+function ecr_login() {
+  aws ecr get-login-password| docker login --username AWS --password-stdin $1
+}
+
 role=$(yq e ".accounts.${ACCOUNT}.common.tf_role_arn" $CONFIG_PATH)
 repository=$(yq e ".apps.${APP}.docker_repository" $CONFIG_PATH)
 source_registry=$(yq e ".apps.common.docker_registry" $CONFIG_PATH)
@@ -20,9 +25,7 @@ destination_registry=$(yq e ".accounts.${ACCOUNT}.common.docker_registry" $CONFI
 source_image="${source_registry}/${repository}:$TAG"
 destination_image="${destination_registry}/${repository}:$TAG"
 
-login=$(aws ecr get-login)
-
-$login
+ecr_login $source_registry
 
 docker pull $source_image
 SHA=$(docker inspect --format='{{.ID}}' $source_image | awk -F: '{print $2}')
@@ -36,9 +39,7 @@ export AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' <<< $STS_SESSION)
 
 unset AWS_PROFILE
 
-login=$(aws ecr get-login)
-
-$login
+ecr_login $destination_registry
 
 docker push $destination_image
 
