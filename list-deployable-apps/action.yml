@@ -39,7 +39,7 @@ runs:
       env:
         APPS: ${{ inputs.apps }}
         ACCOUNT: ${{ inputs.account }}
-        ENVIORNMENT: ${{ inputs.environment }}
+        ENVIRONMENT: ${{ inputs.environment }}
         CONFIG_PATH: ${{ inputs.config_file_path }}
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
         DEBUG: ${{ inputs.debug }}
