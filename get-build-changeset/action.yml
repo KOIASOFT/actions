@@ -56,4 +56,11 @@ runs:
     - name: Set changeset
       id: changeset
       shell: bash
-      run: echo "::set-output name=changeset::${{ steps.changeset-inputs.outputs.changeset }}${{ steps.changeset-latest.outputs.changeset }}"
+      run: |
+        CHANGESET="${{ steps.changeset-inputs.outputs.changeset }}${{ steps.changeset-latest.outputs.changeset }}"
+        
+        test -n "$CHANGESET" || { echo "Variable 'CHANGESET' missing"; exit 1; }
+        
+        echo "::set-output name=changeset::$CHANGESET"
+        
+        
