@@ -22,14 +22,19 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Parse input
+      id: parse
+      shell: bash
+      run: echo "::set-output name=changeset_unconfigured::${{ github.event.inputs.changeset == '' || github.event.inputs.changeset == 'latest' }}"
+
     - name: Configure changeset from input
       id: changeset-input
       shell: bash
-      if: ${{ !env.CHANGESET_UNCONFIGURED }}
+      if: ${{ !steps.parse.output.changeset_unconfigured }}
       run: echo "::set-output name=changeset::${{ inputs.changeset }}"
 
     - id: get-changeset-latest
-      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      if: ${{ steps.parse.output.changeset_unconfigured }}
       uses: octokit/request-action@v2.x
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -39,13 +44,13 @@ runs:
     - name: Set long changest sha
       id: get-long-changeset-sha-latest
       shell: bash
-      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      if: ${{ steps.parse.output.changeset_unconfigured }}
       run: echo "::set-output name=changeset::${{ fromJSON(steps.get-changeset-latest.outputs.data).workflow_runs[0].head_sha }}"
 
     - name: Configure short changeset sha from long changeset sha
       id: changeset-latest
       shell: bash
-      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      if: ${{ steps.parse.output.changeset_unconfigured }}
       run: echo "::set-output name=changeset::$(git rev-parse --short ${{ steps.get-long-changeset-sha-latest.outputs.changeset }})"
 
     - name: Set changeset
