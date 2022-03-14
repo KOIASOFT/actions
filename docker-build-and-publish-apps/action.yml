@@ -32,5 +32,5 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/docker-app-cfg.sh
+        . ${{ github.action_path }}/../.scripts/docker-build-and-publish-apps.sh
         
