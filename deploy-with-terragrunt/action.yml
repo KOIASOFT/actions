@@ -19,6 +19,11 @@ inputs:
     description: 'The version of Terragrunt to use.'
     required: true
     default: 0.35.16
+  terragrunt_workdir:
+    description: 'The directory with Terragrunt configuration.'
+    required: true
+    default:  .infrastructure/terragrunt
+
 runs:
   using: "composite"
   steps:
@@ -51,16 +56,23 @@ runs:
       shell: bash
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
       run: terragrunt init
 
     - name: Terragrunt Validate
       shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
       run: terragrunt validate
 
     - name: Terragrunt Plan
       shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
       run: terragrunt plan -out terraform-plan.out
 
     - name: Terragrunt Apply
       shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
       run: terragrunt apply --auto-approve terraform-plan.out
