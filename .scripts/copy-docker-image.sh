@@ -8,7 +8,7 @@ test -n "$APP"         || { echo "Variable 'app' missing"; exit 1; }
 test -n "$CONFIG_PATH" || { echo "Variable 'config_path' missing"; exit 2; }
 test -n "$DEBUG"       || { echo "Variable 'debug' missing"; exit 3; }
 test -n "$ACCOUNT"     || { echo "Variable 'account' missing"; exit 4; }
-test -n "$CHANGESET"   || { echo "Variable 'changeset' missing"; exit 5; }
+test -n "$TAG"         || { echo "Variable 'tag' missing"; exit 5; }
 test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 6; }
 
 alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
@@ -17,8 +17,8 @@ role=$(yq e ".accounts.${ACCOUNT}.common.tf_role_arn" $CONFIG_PATH)
 repository=$(yq e ".apps.${APP}.docker_repository" $CONFIG_PATH)
 source_registry=$(yq e ".apps.common.docker_registry" $CONFIG_PATH)
 destination_registry=$(yq e ".accounts.${ACCOUNT}.common.docker_registry" $CONFIG_PATH)
-source_image="${source_registry}/${repository}:$CHANGESET"
-destination_image="${destination_registry}/${repository}:$CHANGESET"
+source_image="${source_registry}/${repository}:$TAG"
+destination_image="${destination_registry}/${repository}:$TAG"
 
 docker pull $source_image
 SHA=$(docker inspect --format='{{.ID}}' $source_image | awk -F: '{print $2}')

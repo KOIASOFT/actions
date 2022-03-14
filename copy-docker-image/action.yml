@@ -29,6 +29,7 @@ runs:
         CONFIG_PATH: ${{ inputs.config_file_path }}
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
         DEBUG: ${{ inputs.debug }}
+        APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.tag }}
       run: |
