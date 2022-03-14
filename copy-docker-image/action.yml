@@ -34,7 +34,7 @@ runs:
         DEBUG: ${{ inputs.debug }}
         APP: ${{ inputs.app }}
         ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.tag }}
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
         
