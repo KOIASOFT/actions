@@ -8,8 +8,6 @@ test -f "$CONFIG_PATH"   || { echo "Config '$CONFIG_PATH' file not found"; exit 
 
 alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
-#test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' not found"; exit 1; }
-
 . $(dirname -- "${BASH_SOURCE[0]}")/list-available-apps.sh
 
 for app in "${apps[@]}"; do
@@ -29,6 +27,9 @@ for app in "${apps[@]}"; do
   fi
 
   docker build --force-rm -f $dockerfile -t $docker_image $docker_context
+
+  aws ecr create-repository --repository-name="$docker_repository_location_only"  >& /dev/null
+  docker push $docker_image
 done
 
 

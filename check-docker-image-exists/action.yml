@@ -1,0 +1,46 @@
+name: 'Check Docker image exists in the chosen account'
+description: 'Checks whether images exists in the account (creates repository if needed)'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+  account:
+    description: 'The account to check in.'
+    required: true
+  tag:
+    description: 'The tag to check for.'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check Docker image exists
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
+        ACCOUNT: ${{ inputs.account }}
+        CHANGESET: ${{ inputs.tag }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/check-docker-image-exists.sh
+        
+        echo "::set-output name=exists::$exists" 
+        

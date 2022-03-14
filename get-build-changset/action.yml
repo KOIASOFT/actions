@@ -1,0 +1,54 @@
+name: 'Get build changset'
+description: 'Finds latest build changeset for a specified workflow and branch if not specified.'
+
+inputs:
+  changeset:
+    description: 'The specified changeset as input'
+    required: true
+  workflow_id:
+    description: 'The if of the build workflow to find latest changeset'
+    required: true
+  branch:
+    description: 'The branch to find latest built changeset.'
+    required: true
+  token:
+    description: 'The token to access repository.'
+    required: true
+outputs:
+  changeset:
+    description: "The changeset."
+    value: ${{ steps.changeset.outputs.changeset }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure changeset from input
+      id: changeset-input
+      shell: bash
+      if: ${{ !env.CHANGESET_UNCONFIGURED }}
+      run: echo "::set-output name=changeset::${{ inputs.changeset }}"
+
+    - id: get-changeset-latest
+      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      uses: octokit/request-action@v2.x
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        route: GET /repos/${{ github.repository }}/actions/workflows/${{ inputs.workflow_id }}/runs?status=success&per_page=1&branch=${{ github.ref_name }}
+
+    - name: Set long changest sha
+      id: get-long-changeset-sha-latest
+      shell: bash
+      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      run: echo "::set-output name=changeset::${{ fromJSON(steps.get-changeset-latest.outputs.data).workflow_runs[0].head_sha }}"
+
+    - name: Configure short changeset sha from long changeset sha
+      id: changeset-latest
+      shell: bash
+      if: ${{ env.CHANGESET_UNCONFIGURED }}
+      run: echo "::set-output name=changeset::$(git rev-parse --short ${{ steps.get-long-changeset-sha-latest.outputs.changeset }})"
+
+    - name: Set changeset
+      id: changeset
+      shell: bash
+      run: echo "::set-output name=changeset::${{ steps.changeset-inputs.outputs.changeset }}${{ steps.changeset-latest.outputs.changeset }}"

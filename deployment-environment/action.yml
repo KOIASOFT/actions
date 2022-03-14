@@ -1,0 +1,32 @@
+name: 'Deployment Environment'
+description: 'Extract account and environment.'
+inputs:
+  target:
+    description: 'The target environment in format <account>-<environment>'
+    required: true
+outputs:
+  account:
+    description: "The AWS account to deploy in one of its environments."
+    value: ${{ steps.process.outputs.account }}
+  environment:
+    description: "The environment in the account to deploy in."
+    value: ${{ steps.process.outputs.environment }}
+runs:
+  using: "composite"
+  steps:
+    - name: Split account and environment
+      id: process
+      shell: bash
+      env:
+        TARGET: ${{ inputs.target }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+        fi
+        
+        echo "::set-output name=account::$account"
+        echo "::set-output name=environment::$environment"      
+
+        
