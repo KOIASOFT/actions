@@ -11,8 +11,14 @@ test -n "$ACCOUNT"     || { echo "Variable 'account' missing"; exit 4; }
 test -n "$TAG"         || { echo "Variable 'tag' missing"; exit 5; }
 test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 6; }
 
-alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
+. $(dirname -- "${BASH_SOURCE[0]}")/check-docker-image-exists.sh
 
+if [ "$exists" == "true" ]; then
+  echo "Image already exists"
+  exit 0;
+fi
+
+alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
 function ecr_login() {
   aws ecr get-login-password| docker login --username AWS --password-stdin $1

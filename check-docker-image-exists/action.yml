@@ -30,7 +30,7 @@ runs:
         EXCLUDED_APPS: ${{ inputs.exclude_apps }}
         DEBUG: ${{ inputs.debug }}
         ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.tag }}
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
         
