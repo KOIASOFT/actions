@@ -1,0 +1,66 @@
+name: 'Deploy with Terragrunt'
+description: 'Deploys application with Terragrunt'
+inputs:
+  app:
+    description: 'The name of the application to deploy.'
+    required: true
+  repo_ssh_key:
+    description: 'The SSH key to access GitHub repositories.'
+    required: true
+  debug:
+    description: 'Prints debug trace.'
+    required: true
+    default: "false"
+  terraform_versiom:
+    description: 'The version of Terraform to use.'
+    required: true
+    default: 1.1.0
+  terragrunt_versiom:
+    description: 'The version of Terragrunt to use.'
+    required: true
+    default: 0.35.16
+runs:
+  using: "composite"
+  steps:
+    - name: Setup SSH Keys and known_hosts
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ inputs.repo_ssh_key }}"
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+        terraform_wrapper: false
+
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v1.1.0
+      with:
+        terragrunt_version: ${{ inputs.terragrunt_version }}
+
+    - name: Terragrunt Init
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      run: terragrunt init
+
+    - name: Terragrunt Validate
+      shell: bash
+      run: terragrunt validate
+
+    - name: Terragrunt Plan
+      shell: bash
+      run: terragrunt plan -out terraform-plan.out
+
+    - name: Terragrunt Apply
+      shell: bash
+      run: terragrunt apply --auto-approve terraform-plan.out
