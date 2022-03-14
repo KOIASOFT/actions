@@ -34,7 +34,7 @@ runs:
       run: echo "::set-output name=changeset::${{ inputs.changeset }}"
 
     - id: get-changeset-latest
-      if: ${{ steps.parse.output.changeset_unconfigured == 'true' }}
+      if: ${{ steps.parse.outputs.changeset_unconfigured == 'true' }}
       uses: octokit/request-action@v2.x
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
