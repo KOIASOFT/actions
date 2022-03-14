@@ -13,7 +13,6 @@ inputs:
     description: 'Prints debug trace'
     required: true
     default: "false"
-outputs:
 runs:
   using: "composite"
   steps:
