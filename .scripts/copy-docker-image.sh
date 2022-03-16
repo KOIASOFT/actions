@@ -1,7 +1,4 @@
 #!/bin/bash
-
-test -o errexit && SET_E=true || SET_E=false
-
 shopt -s expand_aliases
 
 test -n "$APP"         || { echo "Variable 'app' missing"; exit 1; }
