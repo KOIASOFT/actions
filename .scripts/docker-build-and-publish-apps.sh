@@ -25,7 +25,7 @@ for app in "${apps[@]}"; do
   echo " - docker_context: $docker_context"
 
   if [ "$dockerignore" != "null" ]; then
-    cp -u $dockerignore $docker_context
+     cmp --silent $dockerignore $docker_context/.dockerignore || cp -u $dockerignore $docker_context/.dockerignore
   fi
 
   docker build --force-rm -f $dockerfile -t $docker_image $docker_context
