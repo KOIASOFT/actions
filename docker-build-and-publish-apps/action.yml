@@ -16,7 +16,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Read list of available apps
+    - name: Process
       id: process
       shell: bash
       env:
