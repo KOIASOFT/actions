@@ -23,7 +23,7 @@ log_file="check-stdout.log"
 rm -rf $log_file
 set +e
 
-create-ecr-repository-role "$role" "$repository" >& /dev/null
+create-ecr-repository-role "$role" "$repository"
 describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2)
 
 exit_code=$?
