@@ -2,6 +2,9 @@
 
 test -o errexit && SET_E=true || SET_E=false
 
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/create-ecr-repository.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/describe-ecr-repository-image.sh"
+
 shopt -s expand_aliases
 
 test -n "$APP"         || { echo "Variable 'app' missing"; exit 1; }
@@ -13,21 +16,15 @@ test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' file not found"; exit 6;
 
 alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
-role=$(yq e ".accounts.${ACCOUNT}.common.tf_role_arn" $CONFIG_PATH)
-repository=$(yq e ".apps.${APP}.docker_repository" $CONFIG_PATH)
-
-STS_SESSION=$(aws sts assume-role --role-arn "$role" --role-session-name "ecr-image-existence-checker-$APP")
-
-export AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' <<< $STS_SESSION)
-export AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' <<< $STS_SESSION)
-export AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' <<< $STS_SESSION)
+role=$(yq e ".accounts.${ACCOUNT}.common.tf_role_arn" "$CONFIG_PATH")
+repository=$(yq e ".apps.${APP}.docker_repository" "$CONFIG_PATH")
 
 log_file="check-stdout.log"
 rm -rf $log_file
 set +e
 
-aws ecr create-repository --repository-name="$repository"  >& /dev/null
-aws ecr describe-images --repository-name="$repository" --image-ids=imageTag="$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2)
+create-ecr-repository-role "$role" "$repository" >& /dev/null
+describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2)
 
 exit_code=$?
 
