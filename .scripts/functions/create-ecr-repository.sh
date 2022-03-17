@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function create-repository-role() {
+function create-ecr-repository() {
   repository="$1"
 
   test -n "$repository"      || { echo "Variable 'repository' missing"; exit 101; }
@@ -8,7 +8,7 @@ function create-repository-role() {
   aws ecr create-repository --repository-name="$repository"
 }
 
-function create-repository-role() {
+function create-ecr-repository-role() {
   source "$(dirname -- "${BASH_SOURCE[0]}")/execute-role-aws.sh"
 
   role="$1"
