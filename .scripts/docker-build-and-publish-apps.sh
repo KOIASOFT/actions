@@ -32,7 +32,7 @@ for app in "${apps[@]}"; do
 
   docker build --force-rm --build-arg=APP_FOLDER=$app_folder --build-arg=APP=$APP --build-arg=CONTAINER_PORT=$container_port -f $dockerfile -t $docker_image $docker_context
 
-  aws ecr create-repository --repository-name="$docker_repository_location_only"  >& /dev/null || true
+  aws ecr create-repository --repository-name="$docker_repository_location_only" || true
 
   docker push $docker_image
 done

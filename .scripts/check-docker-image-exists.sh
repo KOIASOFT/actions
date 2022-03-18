@@ -19,10 +19,10 @@ repository=$(yq e ".apps.${APP}.docker_repository" "$CONFIG_PATH")
 log_file="check-stdout.log"
 rm -rf $log_file
 
-create-ecr-repository-role "$role" "$repository" || true
-describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2) || true
+exit_code=0
 
-exit_code=$?
+create-ecr-repository-role "$role" "$repository" || true
+describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2) || exit_code=$?
 
 if [[ $exit_code == 0 ]]; then
   export exists=true
