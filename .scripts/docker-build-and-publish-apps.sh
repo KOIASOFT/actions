@@ -23,12 +23,16 @@ for app in "${apps[@]}"; do
   echo " - dockerfile: $dockerfile"
   echo " - dockerignore: $dockerignore"
   echo " - docker_context: $docker_context"
+  echo " - build_args:"
+  echo "   - APP_FOLDER: $app_folder"
+  echo "   - APP: $APP"
+  echo "   - CONTAINER_PORT: $container_port"
 
   if [ "$dockerignore" != "null" ]; then
-     cmp --silent $dockerignore $docker_context/.dockerignore || cp -u $dockerignore $docker_context/.dockerignore
+     cmp --silent $dockerignore $docker_context/.dockerignore || cp $dockerignore $docker_context/.dockerignore
   fi
 
-  docker build --force-rm -f $dockerfile -t $docker_image $docker_context
+  docker build --force-rm --build-arg=APP_FOLDER=$app_folder --build-arg=APP=$APP --build-arg=CONTAINER_PORT=$container_port -f $dockerfile -t $docker_image $docker_context
 
   set +e
   aws ecr create-repository --repository-name="$docker_repository_location_only"  >& /dev/null

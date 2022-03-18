@@ -13,6 +13,7 @@ folder_query=".apps.${APP}.folder"
 dockerfile_query=".apps.${APP}.dockerfile // .apps.common.dockerfile"
 dockerignore_query=".apps.${APP}.dockerignore // .apps.common.dockerignore"
 docker_context_query=".apps.${APP}.docker_context // .apps.common.docker_context // .apps.${APP}.folder"
+container_port_query=".apps.${APP}.container_port // .apps.common.container_port"
 
 export docker_image_tag=$(git rev-parse --short HEAD)
 export docker_registry=$(yq e '.apps.common.docker_registry' $CONFIG_PATH)
@@ -23,4 +24,5 @@ export docker_context=$(yq e "$docker_context_query"  $CONFIG_PATH)
 export dockerfile=$(yq e "$dockerfile_query"  $CONFIG_PATH)
 export dockerignore=$(yq e "$dockerignore_query"  $CONFIG_PATH)
 export app_folder=$(yq e "$folder_query" $CONFIG_PATH)
+export container_port=$(yq e "$container_port_query" $CONFIG_PATH)
 
