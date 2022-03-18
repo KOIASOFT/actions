@@ -1,7 +1,4 @@
 #!/bin/bash
-
-test -o errexit && SET_E=true || SET_E=false
-
 source "$(dirname -- "${BASH_SOURCE[0]}")/functions/create-ecr-repository.sh"
 source "$(dirname -- "${BASH_SOURCE[0]}")/functions/describe-ecr-repository-image.sh"
 
@@ -21,14 +18,11 @@ repository=$(yq e ".apps.${APP}.docker_repository" "$CONFIG_PATH")
 
 log_file="check-stdout.log"
 rm -rf $log_file
-set +e
 
-create-ecr-repository-role "$role" "$repository"
-describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2)
+create-ecr-repository-role "$role" "$repository" || true
+describe-ecr-repository-image-role "$role" "$repository" "$TAG" > >(tee -a $log_file) 2> >(tee -a $log_file >&2) || true
 
 exit_code=$?
-
-test "SET_E" == "true" && set -e || true
 
 if [[ $exit_code == 0 ]]; then
   export exists=true

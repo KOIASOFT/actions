@@ -25,4 +25,3 @@ export dockerfile=$(yq e "$dockerfile_query"  $CONFIG_PATH)
 export dockerignore=$(yq e "$dockerignore_query"  $CONFIG_PATH)
 export app_folder=$(yq e "$folder_query" $CONFIG_PATH)
 export container_port=$(yq e "$container_port_query" $CONFIG_PATH)
-

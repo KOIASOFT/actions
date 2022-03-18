@@ -1,6 +1,4 @@
 #!/bin/bash
-test -o errexit && SET_E=true || SET_E=false
-
 shopt -s expand_aliases
 
 test -n "$CONFIG_PATH"   || { echo "Variable 'config_path' missing"; exit 1; }
@@ -34,9 +32,7 @@ for app in "${apps[@]}"; do
 
   docker build --force-rm --build-arg=APP_FOLDER=$app_folder --build-arg=APP=$APP --build-arg=CONTAINER_PORT=$container_port -f $dockerfile -t $docker_image $docker_context
 
-  set +e
-  aws ecr create-repository --repository-name="$docker_repository_location_only"  >& /dev/null
-  test "SET_E" == "true" && set -e || true
+  aws ecr create-repository --repository-name="$docker_repository_location_only"  >& /dev/null || true
 
   docker push $docker_image
 done
