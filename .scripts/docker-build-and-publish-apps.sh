@@ -36,5 +36,3 @@ for app in "${apps[@]}"; do
 
   docker push $docker_image
 done
-
-

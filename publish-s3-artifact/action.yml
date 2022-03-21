@@ -1,0 +1,39 @@
+name: 'Publish S3 artifact'
+description: 'Ship folder to S3 as distributiojn artifact'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  app:
+    description: 'The app to ship artifact for'
+    required: true
+  folder:
+    description: 'The folder to publish'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Process
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        APP: ${{ inputs.app }}
+        LOCAL_FOLDER: ${{ inputs.folder }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        source ${{ github.action_path }}/../.scripts/publish-s3-artifact.sh
+        
