@@ -8,6 +8,9 @@ inputs:
   app:
     description: 'The app to ship artifact for'
     required: true
+  changeset:
+    description: 'The changeset of app to deploy'
+    required: true
   folder:
     description: 'The folder to publish'
     required: true
@@ -25,6 +28,7 @@ runs:
         CONFIG_PATH: ${{ inputs.config_file_path }}
         APP: ${{ inputs.app }}
         LOCAL_FOLDER: ${{ inputs.folder }}
+        CHANGESET: ${{ inputs.changeset }}
         DEBUG: ${{ inputs.debug }}
       run: |
         set -e
