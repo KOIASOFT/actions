@@ -12,7 +12,13 @@ inputs:
   app:
     description: 'The app to deploy'
     required: true
-  version:
+  account:
+    description: 'The account to deploy in'
+    required: true
+  environemnt:
+    description: 'The environment to deploy in'
+    required: true
+  changeset:
     description: 'The version to deploy'
     required: true
   debug:
@@ -27,9 +33,10 @@ runs:
       shell: bash
       env:
         CONFIG_PATH: ${{ inputs.config_file_path }}
-        APP: ${{ inputs.app }}
-        CHANGESET: ${{ inputs.version }}
         TERRAGRUNT_FOLDER: ${{ inputs.terragrunt_folder }}
+        APP: ${{ inputs.app }}
+        ENVIRONMENT: ${{ inputs.account }}-${{ inputs.environment }}
+        CHANGESET: ${{ inputs.changeset }}
         DEBUG: ${{ inputs.debug }}
       run: |
         set -e
