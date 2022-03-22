@@ -7,10 +7,10 @@ test -n "$LOCAL_FOLDER" || { echo "Variable 'local_folder' missing"; exit 3; }
 test -n "$DEBUG"        || { echo "Variable 'debug' missing"; exit 4; }
 test -f "$CONFIG_PATH"  || { echo "Config '$CONFIG_PATH' file not found"; exit 5; }
 
-declare -A s3_artifact
-
 source "$(dirname -- "${BASH_SOURCE[0]}")/get-s3-distribution-artifact-info.sh"
 source "$(dirname -- "${BASH_SOURCE[0]}")/synchronize-folder-with-s3-folder.sh"
+
+declare -A s3_artifact
 
 get-s3-distribution-artifact-info s3_artifact "$CONFIG_PATH"
 

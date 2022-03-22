@@ -10,7 +10,7 @@ function synchronize-folder-with-s3-folder() {
   test -n "$local_folder"            || { echo "Variable 'local_folder' missing";       exit 101; }
   test -n "$destination_folder"      || { echo "Variable 'destination_folder' missing"; exit 102; }
 
-  aws s3 sync "$local_folder" "$destination_folder"
+  aws s3 sync --acl bucket-owner-full-control "$local_folder" "$destination_folder"
 }
 
 function synchronize-folder-with-s3-folder-role() {
@@ -28,5 +28,5 @@ function synchronize-folder-with-s3-folder-role() {
   test -n "$local_folder"            || { echo "Variable 'local_folder' missing";         exit 102; }
   test -n "$destination_folder"      || { echo "Variable 'destination_folder' missing";   exit 103; }
 
-  execute-role-aws "$role" "s3-folder-sync" s3 sync "$local_folder" "$destination_folder"
+  execute-role-aws "$role" "s3-folder-sync" s3 sync --acl bucket-owner-full-control "$local_folder" "$destination_folder"
 }

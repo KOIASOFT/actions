@@ -1,0 +1,43 @@
+name: 'Deploy S3 artifact'
+description: 'Deploy S3 distribution artifact'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  terragrunt_folder:
+    description: 'The folder where Terragrunt is stored.'
+    required: true
+    default: '.infrastructure/terragrunt'
+  app:
+    description: 'The app to deploy'
+    required: true
+  version:
+    description: 'The version to deploy'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Process
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        APP: ${{ inputs.app }}
+        CHANGESET: ${{ inputs.version }}
+        TERRAGRUNT_FOLDER: ${{ inputs.terragrunt_folder }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        source ${{ github.action_path }}/../.scripts/deploy-s3-artifact.sh
