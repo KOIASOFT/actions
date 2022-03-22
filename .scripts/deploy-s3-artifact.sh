@@ -10,10 +10,10 @@ test -n "$DEBUG"              || { echo "Variable 'debug' missing";             
 test -f "$CONFIG_PATH"        || { echo "Config '$CONFIG_PATH' file not found";           exit 7; }
 test -d "$TERRAGRUNT_FOLDER"  || { echo "Config '$TERRAGRUNT_FOLDER' folder not found";   exit 8; }
 
-source "$(dirname -- "${BASH_SOURCE[0]}")/get-s3-distribution-artifact-info.sh"
-source "$(dirname -- "${BASH_SOURCE[0]}")/get-and-prepare-s3-config.sh"
-source "$(dirname -- "${BASH_SOURCE[0]}")/get-deployment-environment-info.sh"
-source "$(dirname -- "${BASH_SOURCE[0]}")/deploy-build-to-s3-folder.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/get-s3-distribution-artifact-info.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/get-and-prepare-s3-config.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/get-deployment-environment-info.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/functions/deploy-build-to-s3-folder.sh"
 
 declare -A environment
 declare -A s3_artifact
