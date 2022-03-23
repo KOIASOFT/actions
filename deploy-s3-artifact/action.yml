@@ -15,7 +15,7 @@ inputs:
   account:
     description: 'The account to deploy in'
     required: true
-  environemnt:
+  environment:
     description: 'The environment to deploy in'
     required: true
   changeset:
