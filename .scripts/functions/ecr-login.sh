@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function ecr-login() {
+  set -e
+
   local role
   local registry
 
@@ -12,6 +14,8 @@ function ecr-login() {
 }
 
 function ecr-login-role() {
+  set -e
+
   source "$(dirname -- "${BASH_SOURCE[0]}")/execute-role-aws.sh"
 
   local role

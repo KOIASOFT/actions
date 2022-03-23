@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function get-deployment-environment-info() {
+  set -e
+
   local return_arr
   local target
   local config_path

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function create-ecr-repository() {
+  set -e
+
   repository="$1"
 
   test -n "$repository"      || { echo "Variable 'repository' missing"; exit 101; }
@@ -9,6 +11,8 @@ function create-ecr-repository() {
 }
 
 function create-ecr-repository-role() {
+  set -e
+
   source "$(dirname -- "${BASH_SOURCE[0]}")/execute-role-aws.sh"
 
   role="$1"

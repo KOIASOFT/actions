@@ -2,13 +2,17 @@
 
 # shellcheck disable=SC2034
 function get-s3-distribution-artifact-info() {
-  local config_path
+  set -e
+
   local return_arr
+  local config_path
   local app
+  local changeset
 
   return_arr="$1"
   config_path="$2"
   app="$3"
+  changeset="$4"
 
   test -n "$return_arr"        || { echo "Variable 'return_arr' missing";         exit 110; }
   test -n "$config_path"       || { echo "Variable 'config_path' missing";        exit 111; }
@@ -22,9 +26,14 @@ function get-s3-distribution-artifact-info() {
   name_query=".apps.${app}.name"
   bucket_query=".apps.${app}.artifact_bucket // .apps.common.artifact_bucket"
 
+  if [ -n "$changeset" ]; then
+    return["changeset"]="$changeset"
+  else
+    return["changeset"]=$(git rev-parse --short HEAD)
+  fi
+
   return["bucket"]=$(yq e "$bucket_query" "$config_path")
   return["name"]=$(yq e "$name_query" "$config_path")
-  return["changeset"]=$(git rev-parse --short HEAD)
   return["destination"]="s3://${return["bucket"]}/${return["name"]}/${return["changeset"]}"
 
   test -n "${return["bucket"]}"       || { echo "Output 'bucket' missing";        exit 120; }

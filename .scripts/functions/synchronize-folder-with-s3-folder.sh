@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function synchronize-folder-with-s3-folder() {
+  set -e
+
   local local_folder
   local destination_folder
 

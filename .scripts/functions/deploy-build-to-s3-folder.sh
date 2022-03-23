@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function deploy-build-to-s3-folder() {
+  set -e
+
   local source_s3_path
   local dest_s3_path
   local exclude
@@ -26,6 +28,8 @@ function deploy-build-to-s3-folder() {
 }
 
 function deploy-build-to-s3-folder-role() {
+  set -e
+
   source "$(dirname -- "${BASH_SOURCE[0]}")/execute-role-aws.sh"
 
   local role
@@ -47,10 +51,18 @@ function deploy-build-to-s3-folder-role() {
   test -n "$dest_s3_path"            || { echo "Variable 'dest_s3_path' missing";       exit 103; }
   test -n "$exclude"                 || { echo "Variable 'exclude' missing";            exit 104; }
   test -n "$config_file_path"        || { echo "Variable 'config_file_path' missing";   exit 105; }
-  test -f "$config_file_path"        || { echo "File '$config_file_path' missing";      exit 106; }
-  test -n "$cf_distribution_id"      || { echo "File 'cf_distribution_id' missing";     exit 107; }
+  test -f "$config_file_path"        || { echo "File '$config_file_path' not found";    exit 106; }
+  test -n "$cf_distribution_id"      || { echo "Variable 'cf_distribution_id' missing"; exit 107; }
 
-  execute-role-aws "$role" "s3-folder-sync" s3 sync --acl bucket-owner-full-control --exclude "$exclude" --delete "$source_s3_path" "$dest_s3_path"
-  execute-role-aws "$role" "s3-folder-cfg-copy" s3 cp --acl bucket-owner-full-control "$config_file_path" "$dest_s3_path"
-  execute-role-aws "$role" "clear-cf-dist-cache" cloudfront create-invalidation --distribution-id "$cf_distribution_id" --paths "/*"
+  declare -A aws_role
+
+  aws-role "aws_role" "$role" "clear-cf-dist-cache"
+
+  aws s3 sync --acl bucket-owner-full-control --exclude "$exclude" --delete "$source_s3_path" "$dest_s3_path"
+  aws s3 cp --acl bucket-owner-full-control "$config_file_path" "$dest_s3_path"
+
+  AWS_ACCESS_KEY_ID=${aws_role["AWS_ACCESS_KEY_ID"]} \
+  AWS_SECRET_ACCESS_KEY=${aws_role["AWS_SECRET_ACCESS_KEY"]} \
+  AWS_SESSION_TOKEN=${aws_role["AWS_SESSION_TOKEN"]} \
+    aws cloudfront create-invalidation --distribution-id "$cf_distribution_id" --paths "/*"
 }

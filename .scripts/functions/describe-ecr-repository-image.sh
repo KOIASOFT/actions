@@ -1,6 +1,8 @@
 #!/bin/bash
 
 function describe-ecr-repository-image() {
+  set -e
+
   local repository
   local tag
 
@@ -14,6 +16,8 @@ function describe-ecr-repository-image() {
 }
 
 function describe-ecr-repository-image-role() {
+  set -e
+
   source "$(dirname -- "${BASH_SOURCE[0]}")/execute-role-aws.sh"
 
   local role
