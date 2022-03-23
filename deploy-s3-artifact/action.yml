@@ -18,6 +18,9 @@ inputs:
   environment:
     description: 'The environment to deploy in'
     required: true
+  repo_ssh_key:
+    description: 'The SSH key for getting modules'
+    required: true
   changeset:
     description: 'The version to deploy'
     required: true
