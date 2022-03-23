@@ -22,7 +22,7 @@ function get-deployment-environment-info() {
 
   if [ -f "$config_path" ]; then
     yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
-    property() { echo ".accounts.${return["account"]}.environments.${return["environment"]}.$1 || .accounts.${return["account"]}.common.$1"; }
+    property() { echo ".accounts.${return["account"]}.environments.${return["environment"]}.$1 // .accounts.${return["account"]}.common.$1"; }
 
     dns_zone_id_query=$(property 'dns_zone_id')
     domain_name_query=$(property 'domain_name')
