@@ -17,7 +17,7 @@ function get-s3-distribution-artifact-info() {
 
   declare -n return="$return_arr"
 
-  yq() { docker run --rm -v $PWD:/workdir mikefarah/yq $@; }
+  yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
 
   name_query=".apps.${app}.name"
   bucket_query=".apps.${app}.artifact_bucket // .apps.common.artifact_bucket"

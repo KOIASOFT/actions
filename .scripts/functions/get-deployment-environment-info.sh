@@ -21,7 +21,7 @@ function get-deployment-environment-info() {
   test -n "${return["environment"]}"         || { echo "Output 'environment' missing";          exit 51; }
 
   if [ -f "$config_path" ]; then
-    yq() { docker run --rm -v $PWD:/workdir mikefarah/yq $@; }
+    yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
     property() { echo ".accounts.${return["account"]}.environments.${return["environment"]}.$1 || .accounts.${return["account"]}.common.$1"; }
 
     dns_zone_id_query=$(property 'dns_zone_id')
