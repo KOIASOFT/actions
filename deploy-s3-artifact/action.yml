@@ -28,6 +28,19 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup SSH Keys and known_hosts
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "${{ inputs.repo_ssh_key }}"
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
       with:
