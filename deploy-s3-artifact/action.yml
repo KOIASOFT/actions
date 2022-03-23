@@ -28,6 +28,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.0
+        terraform_wrapper: false
+
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v1.1.0
+      with:
+        terragrunt_version: 0.35.13
     - name: Process
       id: process
       shell: bash
