@@ -23,7 +23,6 @@ function get-and-prepare-s3-config() {
   declare -n return="$return_arr"
 
   folder=$(mktemp -d -p "$PWD" s3-dist-cfg-XXXXXXXX)
-  cleanup() { rm -rf "$folder"; }
 
   app_cfg_file_name=$(egrep -o "[^/]+$" <<< "$s3_app_config_file")
   env_cfg_file_name=$(egrep -o "[^/]+$" <<< "$s3_env_config_file")
@@ -41,7 +40,7 @@ function get-and-prepare-s3-config() {
   do
         parts=(${line//=/ })
         key=$(echo ${parts[0]} | sed 's;/;\\/;g')
-        value=$(echo ${parts[1]} | sed 's;/;\\/;g')
+        value=$(echo ${parts[1]} | sed 's/"//g' | sed 's;/;\\/;g')
 
         command="s/\%$key\%/$value/g"
 
@@ -49,7 +48,4 @@ function get-and-prepare-s3-config() {
   done < "$env_cfg_file_local_path"
 
   return["cfg_file_path"]="$app_cfg_file_local_path"
-
-  trap cleanup EXIT
-  trap cleanup ERR
 }
