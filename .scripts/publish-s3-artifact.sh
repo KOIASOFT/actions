@@ -1,6 +1,6 @@
 #!/bin/bash
 shopt -s expand_aliases
-set -xe
+set -e
 
 test -n "$APP"          || { echo "Variable 'app' missing"; exit 1; }
 test -n "$CONFIG_PATH"  || { echo "Variable 'config_path' missing"; exit 2; }
