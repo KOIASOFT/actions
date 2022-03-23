@@ -1,5 +1,5 @@
 name: 'Publish S3 artifact'
-description: 'Ship folder to S3 as distributiojn artifact'
+description: 'Ships a specified folder (must contain build and config folders) to S3 as distribution artifact storage'
 inputs:
   config_file_path:
     description: 'The path to the configuration file.'
