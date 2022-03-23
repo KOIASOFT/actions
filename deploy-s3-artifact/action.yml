@@ -64,6 +64,7 @@ runs:
         ENVIRONMENT: ${{ inputs.account }}-${{ inputs.environment }}
         CHANGESET: ${{ inputs.changeset }}
         DEBUG: ${{ inputs.debug }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       run: |
         set -e
         
