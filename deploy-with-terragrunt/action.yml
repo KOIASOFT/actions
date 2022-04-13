@@ -16,6 +16,10 @@ inputs:
   repo_ssh_key:
     description: 'The SSH key to access GitHub repositories.'
     required: true
+  destroy:
+    description: 'Defines whether the deployment should be destroyed.'
+    required: true
+    default: "false"
   debug:
     description: 'Prints debug trace.'
     required: true
@@ -49,6 +53,13 @@ runs:
         
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
         ssh-add - <<< "${{ inputs.repo_ssh_key }}"
+
+    - name: Configure environment variables
+      shell: bash
+      run: |
+        if [ "${{ inputs.destroy }}" == "true" ]; then
+          echo "__TF_DESTROY=\"-destroy\"" >> $GITHUB_ENV
+        fi
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
@@ -90,7 +101,7 @@ runs:
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
-      run: terragrunt plan -out terraform-plan.out
+      run: terragrunt plan $__TF_DESTROY -out terraform-plan.out
 
     - name: Terragrunt Apply
       shell: bash
@@ -100,4 +111,4 @@ runs:
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
-      run: terragrunt apply --auto-approve terraform-plan.out
+      run: terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out
