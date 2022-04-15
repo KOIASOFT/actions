@@ -1,29 +1,21 @@
-name: 'Deploy with Terragrunt'
-description: 'Deploys application with Terragrunt'
+name: 'Execute Terragrunt'
+description: 'Executes Terragrunt within specified folder'
 inputs:
-  app:
-    description: 'The name of the application to deploy.'
-    required: true
-  account:
-    description: 'The account to deploy the application in.'
-    required: true
-  environment:
-    description: 'The environment to deploy the application in.'
-    required: true
-  changeset:
-    description: 'The changeset / tag / version of application to deploy (should not matter while undeploying).'
-    required: true
+  inputs:
+    description: 'The input variables to configure for all Terragrunt steps (each becomes environment variable with TF_VAR_ prefix to its name).'
+    required: false
+    default: ""
+  env:
+    description: 'The environment variable to configure for all steps.'
+    required: false
+    default: ""
+  destroy:
+    description: 'Specify whether this should be destroy action instead of apply'
+    required: false
+    default: "false"
   repo_ssh_key:
     description: 'The SSH key to access GitHub repositories.'
     required: true
-  destroy:
-    description: 'Defines whether the deployment should be destroyed.'
-    required: true
-    default: "false"
-  retries:
-    description: 'Defines how many time should Terragrunt be attempted.'
-    required: true
-    default: "5"
   debug:
     description: 'Prints debug trace.'
     required: true
@@ -40,6 +32,10 @@ inputs:
     description: 'The directory with Terragrunt configuration.'
     required: true
     default: .infrastructure/terragrunt
+  install_terragrunt:
+    description: 'Defines whether to install Terraform and Terragrunt.'
+    required: true
+    default: "true"
 
 runs:
   using: "composite"
@@ -61,65 +57,63 @@ runs:
     - name: Configure environment variables
       shell: bash
       run: |
-        if [ "${{ inputs.destroy }}" == "true" ]; then
-          echo "__TF_DESTROY=-destroy" >> $GITHUB_ENV
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          echo "TF_LOG=\"debug\"" >> $GITHUB_ENV
         fi
+        
+        if [ "${{ inputs.destroy }}" == "true" ]; then
+          echo "__TF_DESTROY=\"-destroy\"" >> $GITHUB_ENV
+        fi
+        
+        
+        . ${{ github.action_path }}/../.scripts/load-environment-variables.sh "$GITHUB_ENV" "${{ inputs.env }}" ""
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
+      if: inputs.install_terragrunt == "true"
       with:
         terraform_version: ${{ inputs.terraform_version }}
         terraform_wrapper: false
 
     - name: Setup Terragrunt
       uses: autero1/action-terragrunt@v1.1.0
+      if: inputs.install_terragrunt == "true"
       with:
         terragrunt_version: ${{ inputs.terragrunt_version }}
+
+    - name: Configure inputs
+      shell: bash
+      run: |
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/load-environment-variables.sh "$GITHUB_ENV" "${{ inputs.ipnuts }}" "TF_VAR_"
 
     - name: Terragrunt Init
       shell: bash
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.app }}
-        ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.changeset }}
-        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt init
 
     - name: Terragrunt Validate
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.app }}
-        ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.changeset }}
-        ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt validate
+
+    - name: Terragrunt Plan
+      shell: bash
+      env:
+        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
+      run: terragrunt plan "$__TF_DESTROY" -out terraform-plan.out
 
     - name: Terragrunt Apply
       shell: bash
       env:
         TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.app }}
-        ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.changeset }}
-        ENVIRONMENT: ${{ inputs.environment }}
-      run: |
-        set +e
-        
-        for ((no=1; no <= ${{ inputs.retries }}; no++))
-        do
-          echo "===== Attempt: $no ====="
-          terragrunt plan $__TF_DESTROY -out terraform-plan.out
-          terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out
-        
-          if [ $? -eq 0 ]; then
-            exit 0
-          fi
-        done
-        
-        set -e
-        
-        echo "===== Failure =====" 
-        exit 1
+      run: terragrunt apply "$__TF_DESTROY" --auto-approve terraform-plan.out
