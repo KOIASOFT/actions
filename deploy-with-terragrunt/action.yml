@@ -113,7 +113,7 @@ runs:
         
         for ((no=1; no <= ${{ inputs.retries }}; no++))
         do
-          cmd="$cmd (echo \"===== Attempt: $no ====\" && $plan_cmd && $apply_cmd) || \\"  
+          cmd="$cmd (echo \"===== Attempt: $no ====\" && $plan_cmd && $apply_cmd) || "  
         done
         
         cmd="$cmd (echo \"===== Failure ====\" && exit 1)"
