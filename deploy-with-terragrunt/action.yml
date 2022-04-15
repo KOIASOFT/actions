@@ -20,6 +20,10 @@ inputs:
     description: 'Defines whether the deployment should be destroyed.'
     required: true
     default: "false"
+  retries:
+    description: 'Defines how many time should Terragrunt be attempted.'
+    required: true
+    default: "5"
   debug:
     description: 'Prints debug trace.'
     required: true
@@ -105,7 +109,15 @@ runs:
         plan_cmd="terragrunt plan $__TF_DESTROY -out terraform-plan.out"
         apply_cmd="terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out"
         
-        (echo "===== Attempt: 1 ====" && $plan_cmd && $apply_cmd) || \
-        (echo "===== Attempt: 2 ====" && $plan_cmd && $apply_cmd) || \
-        (echo "===== Attempt: 3 ====" && $plan_cmd && $apply_cmd) || \
-        (echo "===== Failure ====" && exit 1)
+        cmd=""
+        
+        for ((no=1; no <= ${{ inputs.retries }}; no++))
+        do
+          cmd="$cmd (echo \"===== Attempt: $no ====\" && $plan_cmd && $apply_cmd) || \"  
+        done
+        
+        cmd="$cmd (echo \"===== Failure ====\" && exit 1)"
+        
+        echo "$cmd"
+        
+        $cmd
