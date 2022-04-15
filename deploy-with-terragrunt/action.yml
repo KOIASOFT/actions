@@ -93,16 +93,6 @@ runs:
         ENVIRONMENT: ${{ inputs.environment }}
       run: terragrunt validate
 
-    - name: Terragrunt Plan
-      shell: bash
-      env:
-        TERRAGRUNT_WORKING_DIR: ${{ inputs.terragrunt_workdir }}
-        APP: ${{ inputs.app }}
-        ACCOUNT: ${{ inputs.account }}
-        CHANGESET: ${{ inputs.changeset }}
-        ENVIRONMENT: ${{ inputs.environment }}
-      run: terragrunt plan $__TF_DESTROY -out terraform-plan.out
-
     - name: Terragrunt Apply
       shell: bash
       env:
@@ -111,4 +101,11 @@ runs:
         ACCOUNT: ${{ inputs.account }}
         CHANGESET: ${{ inputs.changeset }}
         ENVIRONMENT: ${{ inputs.environment }}
-      run: terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out
+      run: |
+        plan_cmd="terragrunt plan $__TF_DESTROY -out terraform-plan.out"
+        apply_cmd="terragrunt apply $__TF_DESTROY --auto-approve terraform-plan.out"
+        
+        (echo "===== Attempt: 1 ====" && $plan_cmd && $apply_cmd) || \
+        (echo "===== Attempt: 2 ====" && $plan_cmd && $apply_cmd) || \
+        (echo "===== Attempt: 3 ====" && $plan_cmd && $apply_cmd) || \
+        (echo "===== Failure ====" && exit 1)
