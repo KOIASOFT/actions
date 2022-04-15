@@ -11,7 +11,7 @@ inputs:
     description: 'The environment to deploy the application in.'
     required: true
   changeset:
-    description: 'The changeset / tag / version of application to deploy.'
+    description: 'The changeset / tag / version of application to deploy (should not matter while undeploying).'
     required: true
   repo_ssh_key:
     description: 'The SSH key to access GitHub repositories.'
@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: |
         if [ "${{ inputs.destroy }}" == "true" ]; then
-          echo "__TF_DESTROY=\"-destroy\"" >> $GITHUB_ENV
+          echo "__TF_DESTROY=-destroy" >> $GITHUB_ENV
         fi
 
     - name: Install Terraform
