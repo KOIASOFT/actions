@@ -1,0 +1,47 @@
+name: 'Copy Docker image'
+description: 'Copies Docker registry between registries if missing'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+  app:
+    description: 'The app to copy imaeg for.'
+    required: true
+  account:
+    description: 'The account to check in.'
+    required: true
+  tag:
+    description: 'The tag to check for.'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Copy Docker image
+      id: image_check
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}`
+        APP: ${{ inputs.app }}
+        ACCOUNT: ${{ inputs.account }}
+        TAG: ${{ inputs.tag }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/copy-docker-image.sh

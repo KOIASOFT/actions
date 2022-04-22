@@ -1,0 +1,59 @@
+name: 'List deployable apps'
+description: 'List deployable apps from the specified config file'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  apps:
+    description: 'The value of "apps" input which specifies "all" or one app'
+    required: true
+    default: all
+  account:
+    description: 'The account to check for.'
+    required: true
+  environment:
+    description: 'The environment to check for.'
+    required: true
+  exclude_apps:
+    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+outputs:
+  csl:
+    description: "The comma-separated list of available apps."
+    value: ${{ steps.process.outputs.csl }}
+  json:
+    description: "The list of available apps in JSON format."
+    value: ${{ steps.process.outputs.json }}
+runs:
+  using: "composite"
+  steps:
+    - name: Read list of deployable apps
+      id: process
+      shell: bash
+      env:
+        APPS: ${{ inputs.apps }}
+        ACCOUNT: ${{ inputs.account }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/list-deployable-apps.sh
+        
+        echo "::set-output name=csl::$allowed_apps_list"
+        echo "::set-output name=json::$allowed_apps_json"
+

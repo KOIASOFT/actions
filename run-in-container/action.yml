@@ -1,0 +1,43 @@
+name: 'Run in Docker container'
+description: 'Prepare Docker build configuration for a specified app'
+inputs:
+  command:
+    description: 'The command or script to execute.'
+    required: true
+  image:
+    description: 'The image to execute with.'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+outputs:
+  out:
+    description: "The output from stdout."
+    value: ${{ steps.process.outputs.out }}
+  err:
+    description: "The output from stderr."
+    value: ${{ steps.process.outputs.err }}
+runs:
+  using: "composite"
+  steps:
+    - name: Run in container
+      id: process
+      shell: bash
+      env:
+        COMMAND: ${{ inputs.command }}
+        IMAGE: ${{ inputs.image }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/run-in-container.sh
+        
+        echo "::set-output name=out::$out"
+        echo "::set-output name=err::$err"

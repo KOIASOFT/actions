@@ -1,0 +1,45 @@
+name: 'List available apps'
+description: 'List available apps from the specified config file'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from the output (in comma-separated list format)'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+outputs:
+  csl:
+    description: "The comma-separated list of available apps."
+    value: ${{ steps.get-app-lists.outputs.csl }}
+  json:
+    description: "The list of available apps in JSON format."
+    value: ${{ steps.get-app-lists.outputs.json }}
+runs:
+  using: "composite"
+  steps:
+    - name: Read list of available apps
+      id: get-app-lists
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/list-available-apps.sh
+        
+        echo "::set-output name=csl::$apps_csl"
+        echo "::set-output name=json::$apps_json"
