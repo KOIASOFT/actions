@@ -1,0 +1,30 @@
+name: 'Get existing account information'
+description: 'Reads account information from configuration and presents it in output as is'
+inputs:
+  account:
+    description: 'The account to get information for.'
+    required: true
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read configuration
+      id: process
+      shell: bash
+      env:
+        ACCOUNT: ${{ inputs.account }}
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/get-existing-account-info.sh
