@@ -18,16 +18,14 @@ function get-existing-account-info() {
 
   declare -n return="$return_arr"
 
-  if [ -f "$config_path" ]; then
-    yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
-    property() { echo ".accounts.$account.common.$1"; }
+  yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
+  property() { echo ".accounts.$account.common.$1"; }
 
-    keys=$(yq e ".accounts.$account.common | keys" $config_path | sed 's/^- //' | sed -z 's/\n/ /g')
+  keys=$(yq e ".accounts.$account.common | keys" $config_path | sed 's/^- //' | sed -z 's/\n/ /g')
 
-    for key in $keys; do
-      query=$(property $key)
-      value=$(yq e "$query" $config_path)
-      return["$key"]=$value
-    done
-  fi
+  for key in $keys; do
+    query=$(property $key)
+    value=$(yq e "$query" $config_path)
+    return["$key"]=$value
+  done
 }
