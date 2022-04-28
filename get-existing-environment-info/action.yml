@@ -11,6 +11,10 @@ inputs:
     description: 'The path to the configuration file.'
     required: true
     default: '.infrastructure/config.yaml'
+  debug:
+    description: 'Defines whether enable debug.'
+    required: true
+    default: "false"
 
 runs:
   using: "composite"
@@ -22,6 +26,7 @@ runs:
         ACCOUNT: ${{ inputs.account }}
         ENVIRONMENT: ${{ inputs.environment }}
         CONFIG_PATH: ${{ inputs.config_file_path }}
+        DEBUG: ${{ inputs.debug }}
       run: |
         set -e
         
