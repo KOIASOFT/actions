@@ -45,14 +45,14 @@ runs:
         . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh return
         
         data="{"
-        data="$data\n  \"account\": \"$account\""
-        data="$data,\n  \"environment\": \"environment\""
+        data="$data \"account\": \"$account\""
+        data="$data, \"environment\": \"environment\""
         
         for key in "${!return[@]}"
         do
-          data="$data,\n  \"$key\": \"${return[$key]}\""
+          data="$data, \"$key\": \"${return[$key]}\""
         done
         
-        data="$data\n}"
+        data="$data }"
         
         echo "::set-output name=data::$data"
