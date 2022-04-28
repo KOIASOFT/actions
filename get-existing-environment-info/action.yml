@@ -15,6 +15,10 @@ inputs:
     description: 'Defines whether enable debug.'
     required: true
     default: "false"
+outputs:
+  data:
+    description: 'A JSON object representing configuration parameters for environment.'
+    value: ${{ steps.process.outputs.data }}
 
 runs:
   using: "composite"
@@ -40,8 +44,15 @@ runs:
         
         . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh return
         
+        data="{"
+        data="$data\n  \"account\": \"$account\""
+        data="$data,\n  \"environment\": \"environment\""
+        
         for key in "${!return[@]}"
         do
-          echo "::set-output name=$key::${return[$key]}"
+          data="$data,\n  \"$key\": \"${return[$key]}\""
         done
         
+        data="}"
+        
+        echo "::set-output name=data::$data"
