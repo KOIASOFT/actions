@@ -31,4 +31,4 @@ runs:
           find
         fi
         
-        . ${{ github.action_path }}/../.scripts/get-existing-account-info.sh
+        . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh
