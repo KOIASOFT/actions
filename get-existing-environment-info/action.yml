@@ -38,7 +38,7 @@ runs:
         
         declare -A return
         
-        . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh output
+        . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh return
         
         for key in "${!return[@]}"
         do
