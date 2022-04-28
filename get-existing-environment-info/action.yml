@@ -31,12 +31,12 @@ runs:
           find
         fi
         
-        declare -A output
+        declare -A return
         
         . ${{ github.action_path }}/../.scripts/get-existing-environment-info.sh output
         
-        for key in "${!output[@]}"
+        for key in "${!return[@]}"
         do
-          echo "::set-output name=$key::${output[$key]}"
+          echo "::set-output name=$key::${return[$key]}"
         done
         

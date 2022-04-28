@@ -12,6 +12,6 @@ test -n "$output_arr"   || { echo "Variable 'output_arr' missing"; exit 4; }
 
 alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
-declare -n output="$output_arr"
+declare -n info="$output_arr"
 
-get-existing-environment-info output "$ACCOUNT" "$ENVIRONMENT" "$CONFIG_PATH"
+get-existing-environment-info info "$ACCOUNT" "$ENVIRONMENT" "$CONFIG_PATH"
