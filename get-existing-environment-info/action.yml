@@ -53,6 +53,6 @@ runs:
           data="$data,\n  \"$key\": \"${return[$key]}\""
         done
         
-        data="}"
+        data="$data\n}"
         
         echo "::set-output name=data::$data"
