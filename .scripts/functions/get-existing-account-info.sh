@@ -21,7 +21,7 @@ function get-existing-account-info() {
   yq() { docker run --rm -v $PWD:/workdir mikefarah/yq "$@"; }
   property() { echo ".accounts.$account.common.$1"; }
 
-  keys=$(yq e ".accounts.$account.common | keys" $config_path | sed 's/^- //' | sed -z 's/\n/ /g')
+  keys=$(yq e ".accounts.$account.common | keys" $config_path | egrep -v "^[[:space:]]*#|^[[:space:]]*$" |  sed 's/^- //' | sed -z 's/\n/ /g')
 
   for key in $keys; do
     query=$(property $key)

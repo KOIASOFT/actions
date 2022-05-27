@@ -10,7 +10,7 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
 test -f "$CONFIG_PATH" || { echo "Config '$CONFIG_PATH' not found"; exit 1; }
 
-apps_str=$(yq e '.apps | keys' $CONFIG_PATH)
+apps_str=$(yq e '.apps | keys' $CONFIG_PATH | egrep -v "^[[:space:]]*#|^[[:space:]]*$")
 apps_list=$(sed 's/^- //' <<< "$apps_str" | sed -z 's/\n/,/g' | sed 's/,$//;s/ //g;s/#.*$//')
 
 IFS=',' read -r -a apps_array <<< "$apps_list"

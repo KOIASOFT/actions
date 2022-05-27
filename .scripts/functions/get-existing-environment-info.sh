@@ -24,8 +24,8 @@ function get-existing-environment-info() {
   common_property() { echo ".accounts.$account.common.$1"; }
   env_property() { echo ".accounts.$account.environments.$environment.$1"; }
 
-  common_keys=$(yq e ".accounts.$account.common | keys" $config_path | sed 's/^- //' | sed -z 's/\n/ /g')
-  env_keys=$(yq e ".accounts.$account.environments.$environment | keys" $config_path | sed 's/^- //' | sed -z 's/\n/ /g')
+  common_keys=$(yq e ".accounts.$account.common | keys" $config_path | egrep -v "^[[:space:]]*#|^[[:space:]]*$" | sed 's/^- //' | sed -z 's/\n/ /g')
+  env_keys=$(yq e ".accounts.$account.environments.$environment | keys" $config_path | egrep -v "^[[:space:]]*#|^[[:space:]]*$" | sed 's/^- //' | sed -z 's/\n/ /g')
 
   for key in $common_keys; do
     query=$(common_property $key)

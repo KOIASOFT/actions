@@ -14,7 +14,7 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 echo "Check '$APPS' apps in '$ENVIRONMENT' environment of '$ACCOUNT' account"
 
 if [ "$APPS" == "all" ]; then
-  apps_str=$(yq e '.apps | keys' $CONFIG_PATH)
+  apps_str=$(yq e '.apps | keys' $CONFIG_PATH | egrep -v "^[[:space:]]*#|^[[:space:]]*$" )
 else
   apps_str="$APPS"
 fi
