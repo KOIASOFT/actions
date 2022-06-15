@@ -18,7 +18,9 @@ docker pull "$IMAGE"
 
 workdir=$(docker inspect $IMAGE --format '{{ or .Config.WorkingDir "/root"}}')
 
-alias run="docker run --entrypoint=/bin/bash --rm -v $PWD:$workdir $IMAGE"
+alias run="docker run --entrypoint=/bin/bash -u $UID:$GID --rm -v $PWD:$workdir $IMAGE"
+
+echo "Running as '$UID' user and '$GID' group"
 
 run $script > >(tee -a $out_file) 2> >(tee -a $err_file >&2)
 
