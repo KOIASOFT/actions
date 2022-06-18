@@ -10,7 +10,7 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
 . $(dirname -- "${BASH_SOURCE[0]}")/list-available-apps.sh
 
-docker buildx create --use
+#docker buildx create --use
 
 for app in "${apps[@]}"; do
   echo "Executing Docker build for '$app'"
@@ -45,6 +45,6 @@ for app in "${apps[@]}"; do
   docker push $docker_image
 done
 
-docker buildx prune -f
-docker buildx stop
-docker buildx rm
+#docker buildx prune -f
+#docker buildx stop
+#docker buildx rm
