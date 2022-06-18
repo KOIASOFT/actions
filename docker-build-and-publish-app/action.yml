@@ -1,0 +1,35 @@
+name: 'Docker build and push apps'
+description: 'Prepare Docker images and publish them for each app. Assumes that application is built and Dockerfiles manage the process of preparation of the image'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  app:
+    description: 'The name of an app to build and publish'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Process
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        APP: ${{ inputs.app }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/docker-build-and-publish-app.sh
+        
