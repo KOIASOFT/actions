@@ -10,6 +10,8 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
 . $(dirname -- "${BASH_SOURCE[0]}")/list-available-apps.sh
 
+docker buildx create --use
+
 for app in "${apps[@]}"; do
   echo "Executing Docker build for '$app'"
 
@@ -20,23 +22,29 @@ for app in "${apps[@]}"; do
   echo " - docker_image: $docker_image"
   echo " - dockerfile: $dockerfile"
   echo " - dockerignore: $dockerignore"
-  echo " - docker_context: $docker_context"
+  echo " - docker_contexts: $docker_contexts"
   echo " - build_args:"
   echo "   - APP_FOLDER: $app_folder"
   echo "   - APP: $APP"
   echo "   - CONTAINER_PORT: $container_port"
 
   if [ "$dockerignore" != "null" ]; then
-     cmp --silent $dockerignore $docker_context/.dockerignore || cp $dockerignore $docker_context/.dockerignore
+     cmp --silent $dockerignore $docker_context/.dockerignore || cp $dockerignore $app_folder/.dockerignore
   fi
 
-  relative_app_folder=$(realpath --relative-to $docker_context ${GITHUB_WORKSPACE}/$app_folder)
+  build_contexts=""
 
-  echo "Relative app folder: $relative_app_folder"
+  for ctx in $docker_contexts; do
+    build_contexts="$build_contexts --build-context $ctx"
+  done
 
-  docker build --force-rm --build-arg=APP_FOLDER=$relative_app_folder --build-arg=APP=$APP --build-arg=CONTAINER_PORT=$container_port -f $dockerfile -t $docker_image $docker_context
+  docker buildx build --no-cache $build_contexts --build-arg=APP=$APP --build-arg=CONTAINER_PORT=$container_port -f $dockerfile -t $docker_image $app_folder
 
   aws ecr create-repository --repository-name="$docker_repository_location_only" || true
 
   docker push $docker_image
 done
+
+docker buildx prune -f
+docker buildx stop
+docker buildx rm
