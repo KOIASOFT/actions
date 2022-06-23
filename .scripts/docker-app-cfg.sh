@@ -10,7 +10,7 @@ alias yq='docker run --rm -v $PWD:/workdir mikefarah/yq'
 
 repository_query=".apps.${APP}.docker_repository"
 folder_query=".apps.${APP}.folder"
-dockerfile_query=".apps.${APP}.dockerfile // .apps.common.dockerfile"
+dockerfile_query=".apps.${APP}.dockerfile // .apps.common.dockerfile // \"Dockerfile\""
 dockerignore_query=".apps.${APP}.dockerignore // .apps.common.dockerignore"
 docker_contexts_query="(.apps.${APP}.docker_contexts // {}) * (.apps.common.docker_contexts // {}) | to_entries| map(.key + \"=\" + .value) | join(\" \")"
 container_port_query=".apps.${APP}.container_port // .apps.common.container_port"
