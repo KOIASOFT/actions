@@ -31,11 +31,11 @@ inputs:
   terraform_version:
     description: 'The version of Terraform to use.'
     required: true
-    default: 1.1.0
+    default: 1.2.3
   terragrunt_version:
     description: 'The version of Terragrunt to use.'
     required: true
-    default: 0.35.16
+    default: 0.36.10
   terragrunt_workdir:
     description: 'The directory with Terragrunt configuration.'
     required: true
