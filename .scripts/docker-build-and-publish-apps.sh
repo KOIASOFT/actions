@@ -1,7 +1,7 @@
 #!/bin/bash
 shopt -s expand_aliases
 
-set -xe
+set -e
 
 test -n "$CONFIG_PATH"   || { echo "Variable 'config_path' missing"; exit 1; }
 test -n "$EXCLUDED_APPS" || { echo "Variable 'excluded_apps' missing"; exit 2; }
