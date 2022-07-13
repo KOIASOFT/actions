@@ -1,0 +1,36 @@
+name: 'Publish S3 Lambda artifacts'
+description: 'Ships specified Lambda function artifacts to S3 as Lambda function artifact storage'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from publishing'
+    required: true
+    default: common
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Process
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        source ${{ github.action_path }}/../.scripts/publish-s3-lambda-artifacts.sh
+        

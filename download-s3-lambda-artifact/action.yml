@@ -1,0 +1,45 @@
+name: 'Download S3 Lambda artifact'
+description: 'Downloads specified Lambda function artifact from S3 Lambda function artifact storage'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  app:
+    description: 'Excludes the following apps from publishing'
+    required: true
+    default: common
+  file_path:
+    description: 'The path to store file. Default is the current dir with the same name.'
+    required: true
+    default: '.'
+  changeset:
+    description: 'The changeset to download Lambda function artifact.'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Process
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        FILE_PATH: ${{ inputs.file_path }}
+        APP: ${{ inputs.app }}
+        CHANGESET: ${{ inputs.changeset }}
+        DEBUG: ${{ inputs.debug }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        source ${{ github.action_path }}/../.scripts/download-s3-lambda-artifact.sh
+        

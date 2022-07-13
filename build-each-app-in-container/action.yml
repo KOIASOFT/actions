@@ -1,0 +1,49 @@
+name: 'Build each app in Docker container'
+description: 'Execute build of an app in a container'
+inputs:
+  config_file_path:
+    description: 'The path to the configuration file.'
+    required: true
+    default: '.infrastructure/config.yaml'
+  exclude_apps:
+    description: 'Excludes the following apps from publishing'
+    required: true
+    default: common
+  image:
+    description: 'The image to execute with.'
+    required: true
+  debug:
+    description: 'Prints debug trace'
+    required: true
+    default: "false"
+outputs:
+  out:
+    description: "The output from stdout."
+    value: ${{ steps.process.outputs.out }}
+  err:
+    description: "The output from stderr."
+    value: ${{ steps.process.outputs.err }}
+runs:
+  using: "composite"
+  steps:
+    - name: Run in container
+      id: process
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config_file_path }}
+        EXCLUDED_APPS: ${{ inputs.exclude_apps }}
+        DEBUG: ${{ inputs.debug }}
+        IMAGE: ${{ inputs.image }}
+      run: |
+        set -e
+        
+        if [ "$DEBUG" == "true" ]; then
+          set -x
+          pwd
+          find
+        fi
+        
+        . ${{ github.action_path }}/../.scripts/build-each-app-in-container.sh
+        
+        echo "::set-output name=out::$out"
+        echo "::set-output name=err::$err"
